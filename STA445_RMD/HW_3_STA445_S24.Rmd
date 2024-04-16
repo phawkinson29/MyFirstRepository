@@ -1,0 +1,70 @@
+---
+title: "STA 445 HW3"
+author: "Paige Hawkinson"
+date: "03-05-2024"
+output: pdf_document
+---
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+## Problem 1
+
+Download from GitHub the data file [Example_5.xls](https://github.com/dereksonderegger/444/raw/master/data-raw/Example_5.xls). Open it in Excel and figure out which sheet of data we should import into R. At the same time figure out how many initial rows need to be skipped. Import the data set into a data frame and show the structure of the imported data using the `str()` command. Make sure that your data has $n=31$ observations and the three columns are appropriately named. If you make any modifications to the data file, comment on those modifications.
+```{r}
+Example.5 <- read_excel("Example_5_HW_3.xlsx", sheet = 'RawData', range = 'A5:C36')
+str(Example.5)
+```
+I had to include the range of the cells in order to avoid cells that had writing that I did not want to include. 
+
+## Problem 2
+
+Download from GitHub the data file  [Example_3.xls](https://github.com/dereksonderegger/444/raw/master/data-raw/Example_3.xls). Import the data set into a data frame and show the structure of the imported data using the `tail()` command which shows the last few rows of a data table.  Make sure the Tesla values are `NA` where appropriate and that both `-9999` and `NA` are imported as NA values. If you make any modifications to  the data file, comment on those modifications.
+```{r}
+Example.3 <- read_excel("Example_3.xlsx", sheet = 'data', range = 'A1:L34')
+tail(Example.3)
+```
+
+
+## Problem 3
+
+Download all of the files from GitHub `data-raw/InsectSurveys` directory 
+[here.](https://github.com/dereksonderegger/444/raw/master/data-raw/InsectSurveys) Each month's file contains a sheet contains site level information about each of the sites that was surveyed. The second sheet contains information about the number of each species that was observed at each site. Import the data for each month and create a single `site` data frame with information from each month. Do the same for the `observations`. Document any modifications you make to the data files. Comment on the importance of consistency of your data input sheets.
+
+```{r}
+May <- read_excel("May.xlsx", sheet = 'Sites', range = 'A1:F10')
+June <- read_excel("June.xlsx", sheet = 'Sites', range = 'A1:F10')
+July <-read_excel("July.xlsx", sheet = 'Sites', range = 'A1:F10')
+August <- read_excel("August.xlsx", sheet = 'Sites', range = 'A1:F10')
+September <- read_excel("September.xlsx", sheet = 'Sites', range = 'A1:F10')
+October <- read_excel("October.xlsx", sheet = 'Sites', range = 'A1:F10')
+```
+
+```{r}
+MayJune <- rbind(May, June)
+JulyAugust <- rbind(July, August)
+SeptOct <- rbind(September, October)
+MayJuneAugJuly <- rbind(MayJune, JulyAugust)
+SixMonths.sites <- rbind(MayJuneAugJuly, SeptOct)
+str(SixMonths.sites)
+```
+```{r}
+May.Obs <- read_excel("May.xlsx", sheet = 'Observations', range = 'A1:C37')
+June.Obs <- read_excel("June.xlsx", sheet = 'Observations', range = 'A1:C37')
+July.Obs <-read_excel("July.xlsx", sheet = 'Observations', range = 'A1:C37')
+August.Obs <- read_excel("August.xlsx", sheet = 'Observations', range = 'A1:C37')
+September.Obs <- read_excel("September.xlsx", sheet = 'Observations', range = 'A1:C37')
+October.Obs <- read_excel("October.xlsx", sheet = 'Observations', range = 'A1:C37')
+```
+
+```{r}
+MayJune.Obs <- rbind(May.Obs, June.Obs)
+JulyAugust.Obs <- rbind(July.Obs, August.Obs)
+SeptOct.Obs <- rbind(September.Obs, October.Obs)
+MayJuneAugJuly.Obs <- rbind(MayJune.Obs, JulyAugust.Obs)
+SixMonths.Obs <- rbind(MayJuneAugJuly.Obs, SeptOct.Obs)
+str(SixMonths.Obs)
+```
+The consistency of data import sheets is extremely important. There were issues binding sheets together due to capitalization and order. Small details such as capitalization should be kept the same when recording data as this will prevent a huge headache when trying to import and bind in R. 

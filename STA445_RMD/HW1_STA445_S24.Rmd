@@ -1,0 +1,203 @@
+---
+title: "Assign. 1 STA 445"
+author: "Paige Hawkinson"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+## Directions:
+This assignment covers chapter 5.  Please show all work in this document and knit your final draft into a pdf.  This is assignment is about statistical models, which will be helpful if you plan on taking STA 570, STA 371, or STA 571. 
+
+## \color{black} Problem 1: Two Sample t-test
+
+\color{blue} 
+
+a. Load the `iris` dataset. 
+```{r}
+data("iris")
+head(iris)
+```
+
+
+b. Create a subset of the data that just contains rows  for the two species setosa and versicolor using filter.  Use slice_sample to print out 20 random rows of the dataset.
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+iris.subset <- iris %>%
+  filter(Species == "setosa" | Species == "versicolor")
+slice_sample(iris.subset)
+```
+
+
+c. Create a box plot of the petal lengths for these two species using ggplot. Does it look like the mean petal length varies by species?
+```{r}
+library(ggplot2)
+ggplot(data=iris.subset, aes(x=Species, y=Petal.Length)) +
+  geom_boxplot() +
+  labs( title='Species vs Petal Length') +
+  labs( x="Species", y="Petal Length")
+```
+Based on the box plot, it looks like there is a difference in mean petal length 
+
+d. Do a two sample t-test using t.test to determine formally if the petal lengths differ. Note:  The book uses the tidy function in the broom package to make the output "nice".  I hate it!  Please don't use tidy.
+```{r}
+t.test(data=iris.subset, Petal.Length ~ Species)
+```
+
+d. What is the p-value for the test? What do you conclude?
+
+The p-value for the t-test is 2.2e-16, or essentially zero. The p-value means we can reject the null hypothesis and that there is enough evidence to show that there is a difference in mean petal lengths between setosa and versicolor.
+ 
+e. Give a 95% confidence interval for the difference in the mean petal lengths. 
+
+We are 95% confident that the difference in mean petal lengths between setosa and versicolor is between -2.939618 cm and -2.656382 cm.  
+
+f. Give a 99% confidence interval for the difference in mean petal lengths.  (Hint: type ?t.test.  See that you can change the confidence level using the option conf.level)
+```{r}
+t.test(data=iris.subset, Petal.Length ~ Species, conf.level=0.99)
+```
+We are 99% confident that the difference of mean petal lengths between setosa and versicolor is between -2.986265 cm and -2.609735 cm. 
+
+g. What is the mean petal length for setosa?
+
+The mean petal length for setosa is 1.462 cm.
+ 
+h. What is the mean petal length for versicolor?
+
+The mean petal length for versicolor is 4.260 cm.
+ 
+
+## Problem 2: ANOVA 
+
+Use the iris data with all three species.
+
+a. Create a box plot of the petal lengths for all three species using ggplot.Does it look like there are differences in the mean petal lengths?
+```{r}
+library(ggplot2)
+ggplot(data=iris, aes(x=Species, y=Petal.Length)) + 
+  geom_boxplot() + 
+  labs( title='Species vs Petal Length') +
+  labs( x="Species", y="Petal Length")
+```
+Based on the box plot form above, there seems to be a difference in mean petal lengths among the three different species. 
+
+b. Create a linear model where sepal length is modeled by species. Give it
+an appropriate name.
+```{r}
+iris.mod.1 <- lm(data=iris, Sepal.Length ~ Species-1)
+```
+
+
+c. Type anova(your model name) in a code chunk.
+```{r}
+anova(iris.mod.1)
+```
+
+d. What is the p-value for the test?  What do you conclude.
+
+The p-value is 2.2e-16 or essentially zero. This p-value means that we can reject the null hypothesis and that there is enough evidence to show that there is a difference in mean sepal length between species.  
+
+e. Type summary(your model name) in a code chunk.
+```{r}
+summary(iris.mod.1)
+```
+
+
+f. What is the mean sepal length for the species setosa?
+
+The mean sepal length for setosa is 5.0060 cm.
+
+g. What is the mean sepal length for the species versicolor?
+
+The mean sepal length for versicolor is 5.9360 cm. 
+
+
+## Problem 3: Regression 
+
+Can we describe the relationship between petal length and petal width?
+
+a. Create a scatterplot with petal length on the y-axis and petal width on the x-axis using ggplot.
+```{r}
+ggplot(data=iris, aes(x=Petal.Width, y=Petal.Length, color=Species)) +
+  geom_point() +
+  labs( title='Petal Width vs Petal Length') +
+  labs( x="Petal Width", y="Petal Length")
+```
+
+
+b. Create a linear model to model petal length with petal width (length is the response variable and width is the explanatory variable) using lm.
+```{r}
+iris.mod.2 <- lm(data=iris, Petal.Length ~ Petal.Width)
+iris.mod.2
+```
+
+
+c. What is the estimate of the slope parameter?
+
+Estimate of slope parameter = 2.230
+
+d. What is the estimate of the intercept parameter?
+
+Estimate of intercept parameter = 1.084
+
+e. Use summary() to get additional information.
+```{r}
+summary(iris.mod.2)
+```
+
+## Problem 4: Modeling Trees
+
+Using the `trees` data frame that comes pre-installed in R, follow the steps below to fit the regression model that uses the tree `Height` to explain the `Volume` of wood harvested from the tree.
+
+a. Create a scatterplot of the data using ggplot.
+```{r}
+ggplot(data=trees, aes(x=Height, y=Volume, color=Girth)) +
+  geom_point() +
+  labs( title='Tree Height vs Tree Volume') +
+  labs( x="Height (ft)", y="Volume (cubic ft)")
+```
+
+
+b. Fit a `lm` model using the command `model <- lm(Volume ~ Height, data=trees)`.
+```{r}
+model <- lm(Volume ~ Height, data=trees)
+```
+
+
+c. Print out the table of coefficients with estimate names, estimated value, standard error, and upper and lower 95% confidence intervals.
+```{r}
+summary(model)
+confint(model)
+```
+
+
+d.Add the model fitted values to the `trees` data frame along with the regression model confidence intervals.  Note: the book does this in a super convoluted way.  Don't follow the model in the book.  Instead try cbind.
+```{r}
+trees.w.pred <- cbind(trees, predict(model, interval="confidence"))
+trees.w.pred
+```
+
+
+e. Graph the data and fitted regression line and uncertainty ribbon.
+```{r}
+ggplot(data = trees.w.pred, aes(x=Height, y=Volume)) +
+  geom_point() +
+  geom_line(aes(y=fit)) +
+  geom_ribbon(aes(ymin=lwr, ymax=upr), alpha=0.5, fill = "lightgreen") +
+  labs( title='Tree Height vs Tree Volume') +
+  labs( x="Height (ft)", y="Volume (cubic ft)")
+```
+
+
+f. Add the R-squared value as an annotation to the graph using annotate.
+```{r}
+ggplot(data = trees.w.pred, aes(x=Height, y=Volume)) +
+  geom_point() +
+  geom_line(aes(y=fit)) +
+  geom_ribbon(aes(ymin=lwr, ymax=upr), alpha=0.5, fill = "lightgreen") +
+  geom_text(data = trees.w.pred, aes(x=82, y=72, label="R^2=0.3579")) +
+  labs( title='Tree Height vs Tree Volume') +
+  labs( x="Height (ft)", y="Volume (cubic ft)") 
+```
+
+
+
